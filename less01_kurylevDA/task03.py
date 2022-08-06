@@ -4,6 +4,8 @@
 my_words = ['attribute', 'класс', 'функция', 'type']
 
 for w in my_words:
-    print(w.encode('utf-8'))
+    try:
+        bytes(w, 'ascii')
+    except UnicodeEncodeError:
+        print(f"Слово, которое, невозможно записать в байтовом типе: {w}")
 
-# attribute, type - невозможно записать в байтовом типе.

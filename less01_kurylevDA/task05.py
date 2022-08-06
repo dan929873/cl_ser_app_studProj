@@ -11,10 +11,9 @@ hosts = ["yandex.ru", "youtube.com"]
 for i in hosts:
     ping = subprocess.Popen(
         ["ping", i],
-        stdout = subprocess.PIPE,
-        stderr = subprocess.PIPE
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
     )
-
     out, error = ping.communicate()
     enc = chardet.detect(out)
 

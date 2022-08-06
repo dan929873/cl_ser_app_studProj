@@ -5,8 +5,8 @@
 my_words = ['разработка', 'администрирование', 'protocol', 'standard']
 
 for w in range(len(my_words)):
-    my_words[w]  = my_words[w].encode('utf-16')
+    my_words[w] = my_words[w].encode('utf-8')
     print(my_words[w])
 
-    my_words[w]  = my_words[w].decode('utf-16')
+    my_words[w] = my_words[w].decode('utf-8')
     print(my_words[w])
