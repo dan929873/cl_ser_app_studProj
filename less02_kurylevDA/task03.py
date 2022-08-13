@@ -9,9 +9,9 @@
 import yaml
 
 with open('my_jaml.yaml', 'w') as m_yaml:
-    yaml.dump({'item': ['computer','printer','keyboard','mouse']}, m_yaml,default_flow_style=False, allow_unicode = True)
-    yaml.dump({'item_ptice': {'computer': '200\u20AC-1000\u20AC', 'keyboard': '5\u20AC-10\u20AC', 'mouse': '4\u20AC-7\u20AC', 'printer': '100\u20AC-300\u20AC'}}, m_yaml,default_flow_style=False, allow_unicode = True)
-    yaml.dump({'item_quantity': 4}, m_yaml,default_flow_style=False, allow_unicode = True)
+    yaml.dump({'item': ['computer', 'printer', 'keyboard', 'mouse']}, m_yaml, default_flow_style=False, allow_unicode=True)
+    yaml.dump({'item_ptice': {'computer': '200\u20AC-1000\u20AC', 'keyboard': '5\u20AC-10\u20AC', 'mouse': '4\u20AC-7\u20AC', 'printer': '100\u20AC-300\u20AC'}}, m_yaml,default_flow_style=False, allow_unicode=True)
+    yaml.dump({'item_quantity': 4}, m_yaml, default_flow_style=False, allow_unicode=True)
 
 with open('my_jaml.yaml') as m_yaml:
     print(yaml.load(m_yaml, Loader=yaml.FullLoader))
