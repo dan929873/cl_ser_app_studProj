@@ -1,6 +1,4 @@
 import unittest
-
-import unit_test.test_server
 from base import *
 from server import test_client_mess
 
