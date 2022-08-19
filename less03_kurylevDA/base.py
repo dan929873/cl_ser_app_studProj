@@ -1,4 +1,7 @@
 import json
+import sys
+import time
+from socket import socket, AF_INET, SOCK_STREAM
 
 # ѕорт по умолчанию дл€ сетевого ваимодействи€
 PORT = 7777

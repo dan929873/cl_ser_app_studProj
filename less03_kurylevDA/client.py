@@ -1,7 +1,5 @@
 # Программа клиента, запрашивающего текущее время
-import sys
-import time
-from socket import socket, AF_INET, SOCK_STREAM
+
 from base import *
 
 
@@ -14,7 +12,7 @@ def proc_ans(mess):
     if RESPONSE in mess:
         if mess[RESPONSE] == 200:
             return '200 : OK'
-        return f'400 : {mess[ERROR]}'
+        return f'400 : error'
     raise ValueError
 
 
