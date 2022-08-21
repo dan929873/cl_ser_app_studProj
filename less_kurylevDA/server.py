@@ -27,7 +27,8 @@ def main():
         print('After param -\'p\' need write number port')
         sys.exit(1)
     except ValueError:
-        print('1024 < port < 65535.')
+        print(
+            '1024 < port < 65535.')
         sys.exit(1)
 
     try:
@@ -37,7 +38,8 @@ def main():
             l_address = ''
 
     except IndexError:
-        print('After param \'a\'- need write number address')
+        print(
+            'After param \'a\'- need write number address')
         sys.exit(1)
 
     transport = socket(AF_INET, SOCK_STREAM)
