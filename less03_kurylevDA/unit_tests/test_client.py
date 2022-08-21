@@ -4,8 +4,8 @@ from client import cr_presen, proc_ans
 
 
 class TestClient(unittest.TestCase):
-    ok2_dict_cr_presen = {'action': 'presence', 'time': time.time(), 'user': {'account_name': 'Dan'}}
-    ok_dict_cr_presen = {'action': 'presence', 'time': time.time(), 'user': {'account_name': 'Test'}}
+    ok2_dict_cr_presen = {'action': 'presence', 'time': 1.1, 'user': {'account_name': 'Dan'}}
+    ok_dict_cr_presen = {'action': 'presence', 'time': 1.1, 'user': {'account_name': 'Test'}}
 
     err_dict_proc_ans = '400 : error'
     ok_dict_proc_ans = '200 : OK'

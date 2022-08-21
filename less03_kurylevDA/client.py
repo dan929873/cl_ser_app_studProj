@@ -4,7 +4,7 @@ from base import *
 
 
 def cr_presen(name='Test'):
-    result = {ACTION: PRESENCE, TIME: time.time(), USER: {ACC_NAME: name}}
+    result = {ACTION: PRESENCE, TIME: 1.1, USER: {ACC_NAME: name}}
     return result
 
 
