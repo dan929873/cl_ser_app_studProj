@@ -1,8 +1,7 @@
 # Программа сервера времени
-import sys
-from socket import *
-import time
 from base import *
+from log.server_log_config import LOG
+
 
 
 def test_client_mess(mess):
@@ -27,8 +26,7 @@ def main():
         print('After param -\'p\' need write number port')
         sys.exit(1)
     except ValueError:
-        print(
-            '1024 < port < 65535.')
+        LOG.warning('1024 < port < 65535.')
         sys.exit(1)
 
     try:
@@ -38,8 +36,7 @@ def main():
             l_address = ''
 
     except IndexError:
-        print(
-            'After param \'a\'- need write number address')
+        LOG.warning('After param \'a\'- need write number address')
         sys.exit(1)
 
     transport = socket(AF_INET, SOCK_STREAM)
@@ -50,13 +47,13 @@ def main():
         client, client_address = transport.accept()
         try:
             message_from_cient = from_byte(client)
-            print(message_from_cient)
+            LOG.info(message_from_cient)
             # {'action': 'presence', 'time': 1573760672.167031, 'user': {'account_name': 'Guest'}}
             response = test_client_mess(message_from_cient)
             to_byte(client, response)
             client.close()
         except (ValueError, json.JSONDecodeError):
-            print('Received message from client not correct ')
+            LOG.critical('Received message from client not correct ')
             client.close()
 
 

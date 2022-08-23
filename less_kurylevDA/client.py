@@ -1,6 +1,8 @@
 # Программа клиента, запрашивающего текущее время
 
 from base import *
+from log.client_log_config import LOG
+
 
 
 def cr_presen(name='Test'):
@@ -26,7 +28,7 @@ def main():
         serv_addr = IP
         serv_port = PORT
     except ValueError:
-        print('1024 < Port < 65535')
+        LOG.info('1024 < Port < 65535')
         sys.exit(1)
 
     s = socket(AF_INET, SOCK_STREAM)
@@ -35,7 +37,7 @@ def main():
     try:
         print(proc_ans(from_byte(s)))
     except:
-        print("not connect")
+        LOG.warning("not connect")
 
     # tm = s.recv(1024)  # Принять не более 1024 байтов данных
     # s.close()

@@ -2,7 +2,7 @@
 
 import logging.handlers
 
-log_file_name = 'logs/server.log'
+log_file_name = 'log/logs/server.log'
 logging_level = logging.DEBUG
 
 

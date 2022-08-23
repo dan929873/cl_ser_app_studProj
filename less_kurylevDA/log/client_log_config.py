@@ -2,7 +2,7 @@ import logging
 
 
 logging.basicConfig(
-    filename="logs/client.log",
+    filename="log/logs/client.log",
     format="%(asctime)-10s %(levelname)-10s %(module)-10s %(message)-20s",
     level=logging.DEBUG,
 )

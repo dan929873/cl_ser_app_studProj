@@ -3,6 +3,7 @@ import sys
 import time
 from socket import socket, AF_INET, SOCK_STREAM
 
+
 # ѕорт по умолчанию дл€ сетевого ваимодействи€
 PORT = 7777
 # IP адрес по умолчанию дл€ подключени€ клиента
