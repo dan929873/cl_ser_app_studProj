@@ -2,6 +2,9 @@ import json
 import sys
 import time
 from socket import socket, AF_INET, SOCK_STREAM
+import logging
+import traceback
+import inspect
 
 
 # ѕорт по умолчанию дл€ сетевого ваимодействи€

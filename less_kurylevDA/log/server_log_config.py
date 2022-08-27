@@ -11,7 +11,7 @@ formatter = logging.Formatter("%(asctime)-10s %(levelname)-10s %(module)-10s %(m
 # use very short interval for this example, typical 'when' would be 'midnight' and no explicit interval
 handler = logging.handlers.TimedRotatingFileHandler(log_file_name, when="D", interval=1)
 handler.setFormatter(formatter)
-LOG = logging.getLogger() # or pass string to give it a name
+LOG = logging.getLogger('server') # or pass string to give it a name
 LOG.addHandler(handler)
 LOG.setLevel(logging_level)
 

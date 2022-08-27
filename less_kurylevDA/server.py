@@ -1,9 +1,11 @@
 # Программа сервера времени
 from base import *
-from log.server_log_config import LOG
+import log.server_log_config
+from dec import log
 
+LOG = logging.getLogger('server')
 
-
+@log
 def test_client_mess(mess):
     if ACTION in mess and mess[ACTION] == PRESENCE and TIME in mess \
             and USER in mess and mess[USER][ACC_NAME] == 'Test':
@@ -23,7 +25,7 @@ def main():
         if l_port < 1024 or l_port > 65535:
             raise ValueError
     except IndexError:
-        print('After param -\'p\' need write number port')
+        LOG.warning('After param -\'p\' need write number port')
         sys.exit(1)
     except ValueError:
         LOG.warning('1024 < port < 65535.')

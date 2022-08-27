@@ -1,15 +1,16 @@
 # Программа клиента, запрашивающего текущее время
-
 from base import *
-from log.client_log_config import LOG
+import log.client_log_config
+from dec import log
 
+LOG = logging.getLogger('client')
 
-
+@log
 def cr_presen(name='Test'):
     result = {ACTION: PRESENCE, TIME: 1.1, USER: {ACC_NAME: name}}
     return result
 
-
+@log
 def proc_ans(mess):
     if RESPONSE in mess:
         if mess[RESPONSE] == 200:
