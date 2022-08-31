@@ -5,6 +5,9 @@ from socket import socket, AF_INET, SOCK_STREAM
 import logging
 import traceback
 import inspect
+from errors import ReqFieldMissingError, ServerError
+import argparse
+import select
 
 
 # ѕорт по умолчанию дл€ сетевого ваимодействи€
@@ -25,6 +28,10 @@ ACC_NAME = 'account_name'
 PRESENCE = 'presence'
 RESPONSE = 'response'
 ERROR = 'error'
+MESSAGE = 'message'
+MESSAGE_TEXT = 'mess_text'
+SENDER = 'sender'
+ACCOUNT_NAME = 'account_name'
 
 
 def to_byte(s, myDict):
