@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Программа сервера времени
 from base import *
 import log.server_log_config

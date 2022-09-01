@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Программа клиента, запрашивающего текущее время
 
 from base import *
@@ -59,11 +60,11 @@ def arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('addr', default=IP, nargs='?')
     parser.add_argument('port', default=PORT, type=int, nargs='?')
-    parser.add_argument('-m', '--mode', default='listen', nargs='?')
+    parser.add_argument('-m', default='listen', nargs='?')
     namespace = parser.parse_args(sys.argv[1:])
     server_address = namespace.addr
     server_port = namespace.port
-    client_mode = namespace.mode
+    client_mode = namespace.m
 
     if not 1023 < server_port < 65536:
         LOG.critical(
