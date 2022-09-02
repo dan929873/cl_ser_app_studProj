@@ -14,22 +14,14 @@ while True:
         PROCESS.append(subprocess.Popen('python server.py', creationflags=subprocess.CREATE_NEW_CONSOLE))
 
         try:
-            count_client_l = int(input('input count client "listen" type: '))
+            count_client_l = int(input('input count client: '))
         except ValueError:
             print ("write number - count, default = 3")
             count_client_l = 3
 
         for i in range(count_client_l):
-            PROCESS.append(subprocess.Popen('python client.py -m listen', creationflags=subprocess.CREATE_NEW_CONSOLE))
+            PROCESS.append(subprocess.Popen(f'python client.py -n test{i}', creationflags=subprocess.CREATE_NEW_CONSOLE))
 
-        try:
-            count_client_s = int(input('input count client "send" type: '))
-        except ValueError:
-            print("send number - count, default = 1")
-            count_client_s = 1
-
-        for i in range(count_client_s):
-            PROCESS.append(subprocess.Popen('python client.py -m send', creationflags=subprocess.CREATE_NEW_CONSOLE))
 
     elif ACTION == 'x':
         while PROCESS:

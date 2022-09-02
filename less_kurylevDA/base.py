@@ -6,7 +6,7 @@ from socket import socket, AF_INET, SOCK_STREAM
 import logging
 import traceback
 import inspect
-from errors import ReqFieldMissingError, ServerError
+from errors import ReqFieldMissingError, ServerError, IncorrectDataRecivedError, NonDictInputError
 import argparse
 import select
 
@@ -31,9 +31,13 @@ RESPONSE = 'response'
 ERROR = 'error'
 MESSAGE = 'message'
 MESSAGE_TEXT = 'mess_text'
-SENDER = 'sender'
 ACCOUNT_NAME = 'account_name'
+EXIT = 'exit'
 
+
+# Прококол JIM основные ключи:
+SENDER = 'from'
+DESTINATION = 'to'
 
 def to_byte(s, myDict):
     s.send(json.dumps(myDict).encode(encoding=ENCODING))

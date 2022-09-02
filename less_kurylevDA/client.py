@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Программа клиента, запрашивающего текущее время
+import threading
 
 from base import *
 import log.client_log_config
@@ -7,33 +8,107 @@ from dec import log
 
 LOG = logging.getLogger('client')
 
+@log
+def create_exit_message(account_name):
+    """Функция создаёт словарь с сообщением о выходе"""
+    return {
+        ACTION: EXIT,
+        TIME: time.time(),
+        ACCOUNT_NAME: account_name
+    }
 
 @log
-def mess_from_server(mess):
+def mess_from_server(sock, my_user_name):
     """function working with messages from different client, from server """
-    if ACTION in mess and mess[ACTION] == MESSAGE and \
-            SENDER in mess and MESSAGE_TEXT in mess:
-        print(f'{mess[SENDER]}: {mess[MESSAGE_TEXT]}')
-        LOG.info(f'message input, from clint{mess[SENDER]}: {mess[MESSAGE_TEXT]}')
-    else:
-        LOG.info(f'message not correct - {mess}')
+    while True:
+        try:
+            mess = from_byte(sock)
+            if ACTION in mess and mess[ACTION] == MESSAGE and SENDER in mess and DESTINATION in mess and MESSAGE_TEXT in mess and mess[DESTINATION] == my_user_name:
+                print(f'User {mess[SENDER]}, message: {mess[MESSAGE_TEXT]}')
+                LOG.info(f'input message from {mess[SENDER]}, text: {mess[MESSAGE_TEXT]}')
+            else:
+                LOG.error(f'input not correct message: {mess}')
+        except IncorrectDataRecivedError:
+            LOG.error('not decode mess')
+        except (OSError, ConnectionError, ConnectionAbortedError,
+                ConnectionResetError, json.JSONDecodeError):
+            LOG.critical(f'Потеряно соединение с сервером.')
+            break
+
+
+
 
 
 @log
-def create_mess(sock, acc_name='Test'):
-    """function make input text for message, and do dar MESSAGE"""
-    mess = input('input text message, or !!! for close: ')
+def create_mess(sock, account_name='Test'):
+    """
+    Функция запрашивает кому отправить сообщение и само сообщение,
+    и отправляет полученные данные на сервер
+    :param sock:
+    :param account_name:
+    :return:
+    """
+    to_user = input('Введите получателя сообщения: ')
+    message = input('Введите сообщение для отправки: ')
+    message_dict = {
+        ACTION: MESSAGE,
+        SENDER: account_name,
+        DESTINATION: to_user,
+        TIME: time.time(),
+        MESSAGE_TEXT: message
+    }
+    LOG.debug(f'Сформирован словарь сообщения: {message_dict}')
+    try:
+        to_byte(sock, message_dict)
+        LOG.info(f'Отправлено сообщение для пользователя {to_user}')
+    except:
+        LOG.critical('Потеряно соединение с сервером.')
+        sys.exit(1)
 
-    if mess == '!!!':
-        sock.close()
-        LOG.info('end on command client')
-        print('end on command client')
-        sys.exit()
-    mess_dict = {ACTION: MESSAGE, TIME: time.time(), ACCOUNT_NAME: acc_name, MESSAGE_TEXT: mess}
+@log
+def user_interface(sock, acc_name = 'Test'):
+    """input address, and text message, and to message to address"""
 
-    LOG.info(f'create dict MESSAGE: {mess_dict}')
-    return mess_dict
+    to_user = input("name user for message: ")
+    to_mess = input("message: ")
+    mess_dict = {
+        ACTION: MESSAGE, SENDER: acc_name, DESTINATION: to_user, TIME: time.time(), MESSAGE_TEXT: to_mess
+    }
+    LOG.debug(f'create dict message: {mess_dict}')
+    try:
+        to_byte(sock, mess_dict)
+        LOG.info(f'message to user')
+    except:
+        LOG.error('lost connect with server')
+        sys.exit(1)
 
+@log
+def user_interactive(sock, username):
+    """Функция взаимодействия с пользователем, запрашивает команды, отправляет сообщения"""
+    print(username)
+    print_help()
+    while True:
+        command = input('Введите команду: ')
+        if command == 'message':
+            create_mess(sock, username)
+        elif command == 'help':
+            print_help()
+        elif command == 'exit':
+            to_byte(sock, create_exit_message(username))
+            print('Завершение соединения.')
+            LOG.info('Завершение работы по команде пользователя.')
+            # Задержка неоходима, чтобы успело уйти сообщение о выходе
+            time.sleep(0.5)
+            break
+        else:
+            print('Команда не распознана, попробойте снова. help - вывести поддерживаемые команды.')
+
+def print_help():
+    """Функция выводящяя справку по использованию"""
+    print('Поддерживаемые команды:')
+    print('message - отправить сообщение. Кому и текст будет запрошены отдельно.')
+    print('help - вывести подсказки по командам')
+    print('exit - выход из программы')
 
 @log
 def cr_presen(name='Test'):
@@ -60,11 +135,11 @@ def arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('addr', default=IP, nargs='?')
     parser.add_argument('port', default=PORT, type=int, nargs='?')
-    parser.add_argument('-m', default='listen', nargs='?')
+    parser.add_argument('-n', default=None, nargs='?')
     namespace = parser.parse_args(sys.argv[1:])
     server_address = namespace.addr
     server_port = namespace.port
-    client_mode = namespace.m
+    client_name = namespace.n
 
     if not 1023 < server_port < 65536:
         LOG.critical(
@@ -72,23 +147,22 @@ def arg_parser():
             f'Valid addresses are 1024 to 65535. The client ends.')
         sys.exit(1)
 
-    if client_mode not in ('listen', 'send'):
-        LOG.critical(f'Invalid operating mode specified {client_mode}, '
-                     f'allowed modes: listen , send')
-        sys.exit(1)
-
-    return server_address, server_port, client_mode
+    return server_address, server_port, client_name
 
 
 def main():
-    server_address, server_port, client_mode = arg_parser()
+    server_address, server_port, client_name = arg_parser()
+
+    if not client_name:
+        client_name = input("input client name: ")
+
     LOG.info(f'Client started with parameters: server address: {server_address}, '
-             f'port: {server_port}, operating mode: {client_mode}')
+             f'port: {server_port}, name user: {client_name}')
 
     try:
         transport = socket(AF_INET, SOCK_STREAM)
         transport.connect((server_address, server_port))
-        to_byte(transport, cr_presen())
+        to_byte(transport, cr_presen(client_name))
         answer = proc_ans(from_byte(transport))
         LOG.info(f'Connection to server. Server response: {answer}')
         print(f'Connection to server.')
@@ -99,7 +173,7 @@ def main():
         LOG.error(f'Connect to server, return Error: {error.text}')
         sys.exit(1)
     except ReqFieldMissingError as missing_error:
-        LOG.error(f'required field is missing, server response {missing_error.missing_field}')
+        LOG.error(f'Required field is missing, server response {missing_error.missing_field}')
         sys.exit(1)
     except ConnectionRefusedError:
         LOG.critical(
@@ -108,28 +182,25 @@ def main():
         sys.exit(1)
     else:
         # Если соединение с сервером установлено корректно,
-        # начинаем обмен с ним, согласно требуемому режиму.
-        # основной цикл прогрммы:
-        if client_mode == 'send':
-            print('send work')
-        else:
-            print('listen work')
-        while True:
-            # режим работы - отправка сообщений
-            if client_mode == 'send':
-                try:
-                    to_byte(transport, create_mess(transport))
-                except (ConnectionResetError, ConnectionError, ConnectionAbortedError):
-                    LOG.error(f'Connect to server {server_address} failed')
-                    sys.exit(1)
+        # запускаем потоки для работы с клиентами
+        # поток для приема сообщений
 
-            # Режим работы приём:
-            if client_mode == 'listen':
-                try:
-                    mess_from_server(from_byte(transport))
-                except (ConnectionResetError, ConnectionError, ConnectionAbortedError):
-                    LOG.error(f'Connect to server {server_address} failed')
-                    sys.exit(1)
+        receiver = threading.Thread(target=mess_from_server, args=(transport, client_name))
+        receiver.daemon = True
+        receiver.start()
+
+        # поток для отправки сообщений
+
+        user_interface = threading.Thread(target=user_interactive, args=(transport, client_name))
+        user_interface.daemon = True
+        user_interface.start()
+
+
+        while True:
+            time.sleep(1)
+            if receiver.is_alive() and user_interface.is_alive():
+                continue
+            break
 
 
 if __name__ == '__main__':
