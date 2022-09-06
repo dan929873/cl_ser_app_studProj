@@ -11,57 +11,77 @@ import platform
 import subprocess
 import time
 from ipaddress import ip_address
+from threading import Thread
 
+result = {"Reachable": '', "Unreachable": ''}
+addrs = ['192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'yandex.ru',
+         '192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'yandex.ru',
+         '192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'yandex.ru',
+         '192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'yandex.ru']
 
+# DNULL = open(os.devnull, 'w') - не понял зачем ?
 
-result = {"Узел доступен": '', "Узел недоступен": ''}
-
-DNULL = open(os.devnull, 'w')
 
 def check_is_ipaddress(val):
     try:
         ip = ip_address(val)
     except ValueError:
-        raise Exception("ip_address() return except 'ValueError' - Not correct ip address")
+        raise Exception("ip_address() return except 'ValueError' - not correct ip address,")
     return ip
+
 
 def host_ping(host_list, get_list=False):
 
-    
-    for host in host_list:
+
+    def hp(host):
         try:
             ipv4 = check_is_ipaddress(host)
         except Exception as e:
-            print(f'{host} - {e} how domain name')
-            ipv4 = host
+            # print(f'{host} - {e} how domain name')
+            ipv4 = str(host)
 
         if platform.system().lower() == 'windows':
-            param = '-h'
+            param = '-n'
         else:
             param = '-c'
 
         responce = subprocess.Popen(["ping", param, '1', '-w', '1', str(ipv4)], stdout=subprocess.PIPE)
 
         if responce.wait() == 0:
-            result["Узел доступен"] += f'{ipv4}\n'
+            result["Reachable"] += f'{ipv4}\n'
             res_string = f'{ipv4} - Узел доступен'
         else:
-            result["Узел недоступен"] += f'{ipv4}\n'
+            result["Unreachable"] += f'{ipv4}\n'
             res_string = f'{ipv4} - Узел недоступен'
 
         if not get_list:
             print(res_string)
+
+    THR = host_list
+
+    for i in range(len(THR)):
+        THR[i] = Thread(target=hp, args=(host_list[i],))
+        THR[i].start()
+
+    for i in range(len(THR)):
+        THR[i].join()
+
     if get_list:
         return result
 
 
 if __name__ == '__main__':
-    addrs = ['192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'y.ru',
-             '192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'y.ru',
-             '192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'y.ru',
-             '192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'y.ru']
-    start = time.time()
-    host_ping(addrs)
-    end = time.time()
-    print(f'total time: {int(end-start)}')
 
+    # start = time.time()
+    # THR = addrs
+    #
+    # for i in range(len(THR)):
+    #     THR[i] = Thread(target=host_ping, args=(addrs[i],))
+    #     THR[i].start()
+    #
+    # for i in range(len(THR)):
+    #     THR[i].join()
+    #
+    # end = time.time()
+    # print(f'total time: {int(end - start)}')
+    host_ping(addrs)
