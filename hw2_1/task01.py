@@ -13,7 +13,7 @@ import time
 from ipaddress import ip_address
 from threading import Thread
 
-result = {"Reachable": '', "Unreachable": ''}
+result = {"Reachable": [], "Unreachable": []}
 addrs = ['192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'yandex.ru',
          '192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'yandex.ru',
          '192.168.1.0', '192.168.1.255', '192.168.1.0', 'google.com', 'a', '123.45', 'yandex.ru',
@@ -48,10 +48,10 @@ def host_ping(host_list, get_list=False):
         responce = subprocess.Popen(["ping", param, '1', '-w', '1', str(ipv4)], stdout=subprocess.PIPE)
 
         if responce.wait() == 0:
-            result["Reachable"] += f'{ipv4}\n'
+            result["Reachable"].append(f'{ipv4}')
             res_string = f'{ipv4} - Узел доступен'
         else:
-            result["Unreachable"] += f'{ipv4}\n'
+            result["Unreachable"].append(f'{ipv4}')
             res_string = f'{ipv4} - Узел недоступен'
 
         if not get_list:
