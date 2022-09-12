@@ -1,4 +1,5 @@
-"""функция запуска нескольких клиентов и сервера. клиент - в режиме "прослушивания" и "написания сообщения" """
+# -*- coding: utf-8 -*-
+"""С„СѓРЅРєС†РёСЏ Р·Р°РїСѓСЃРєР° РЅРµСЃРєРѕР»СЊРєРёС… РєР»РёРµРЅС‚РѕРІ Рё СЃРµСЂРІРµСЂР°. РєР»РёРµРЅС‚ - РІ СЂРµР¶РёРјРµ "РїСЂРѕСЃР»СѓС€РёРІР°РЅРёСЏ" Рё "РЅР°РїРёСЃР°РЅРёСЏ СЃРѕРѕР±С‰РµРЅРёСЏ" """
 
 import subprocess
 
@@ -13,25 +14,18 @@ while True:
         PROCESS.append(subprocess.Popen('python server.py', creationflags=subprocess.CREATE_NEW_CONSOLE))
 
         try:
-            count_client_l = int(input('input count client "listen" type: '))
+            count_client_l = int(input('input count client: '))
         except ValueError:
             print ("write number - count, default = 3")
             count_client_l = 3
 
         for i in range(count_client_l):
-            PROCESS.append(subprocess.Popen('python client.py -m listen', creationflags=subprocess.CREATE_NEW_CONSOLE))
+            PROCESS.append(subprocess.Popen(f'python client.py -n test{i}', creationflags=subprocess.CREATE_NEW_CONSOLE))
 
-        try:
-            count_client_s = int(input('input count client "sent" type: '))
-        except ValueError:
-            print("write number - count, default = 1")
-            count_client_s = 1
-
-        for i in range(count_client_s):
-            PROCESS.append(subprocess.Popen('python client.py -m sent', creationflags=subprocess.CREATE_NEW_CONSOLE))
 
     elif ACTION == 'x':
         while PROCESS:
             VICTIM = PROCESS.pop()
             VICTIM.kill()
+
 

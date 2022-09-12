@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import sys
 import time
@@ -5,20 +6,20 @@ from socket import socket, AF_INET, SOCK_STREAM
 import logging
 import traceback
 import inspect
-from errors import ReqFieldMissingError, ServerError
+from errors import ReqFieldMissingError, ServerError, IncorrectDataRecivedError, NonDictInputError
 import argparse
 import select
 
 
-# Порт по умолчанию для сетевого ваимодействия
+# РџРѕСЂС‚ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ СЃРµС‚РµРІРѕРіРѕ РІР°РёРјРѕРґРµР№СЃС‚РІРёСЏ
 PORT = 7777
-# IP адрес по умолчанию для подключения клиента
+# IP Р°РґСЂРµСЃ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ РєР»РёРµРЅС‚Р°
 IP = '127.0.0.1'
-# Максимальная очередь подключений
+# РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РѕС‡РµСЂРµРґСЊ РїРѕРґРєР»СЋС‡РµРЅРёР№
 MAX_CONNECTIONS = 5
-# Максимальная длинна сообщения в байтах
+# РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅРЅР° СЃРѕРѕР±С‰РµРЅРёСЏ РІ Р±Р°Р№С‚Р°С…
 MAX_PACKAGE_LENGTH = 1024
-# Кодировка
+# РљРѕРґРёСЂРѕРІРєР°
 ENCODING = 'utf-8'
 
 ACTION = 'action'
@@ -30,9 +31,13 @@ RESPONSE = 'response'
 ERROR = 'error'
 MESSAGE = 'message'
 MESSAGE_TEXT = 'mess_text'
-SENDER = 'sender'
 ACCOUNT_NAME = 'account_name'
+EXIT = 'exit'
 
+
+# РџСЂРѕРєРѕРєРѕР» JIM РѕСЃРЅРѕРІРЅС‹Рµ РєР»СЋС‡Рё:
+SENDER = 'from'
+DESTINATION = 'to'
 
 def to_byte(s, myDict):
     s.send(json.dumps(myDict).encode(encoding=ENCODING))
