@@ -48,7 +48,7 @@ class ServerDB:
         port = Column(Integer)
         time_conn = Column(DateTime)
 
-        def __int__(self, user, ip, port, time_conn):
+        def __init__(self, user, ip, port, time_conn):
             self.user = user
             self.ip = ip
             self.port = port
@@ -61,12 +61,12 @@ class ServerDB:
         # * ip-адрес;
         # * port.
         id = Column(Integer, primary_key=True)
-        user = Column(String, ForeignKey('all_users.id'), unique=True)
+        user = Column(String, ForeignKey('all_users.id'))
         ip = Column(String)
         port = Column(Integer)
         last_conn = Column(DateTime)
 
-        def __int__(self, user, ip, port, last_conn):
+        def __init__(self, user, ip, port, last_conn):
             self.user = user
             self.ip = ip
             self.port = port
@@ -79,7 +79,7 @@ class ServerDB:
         # pool_recycle - по умолчанию соединение с БД через 8 часов простоя обрывается
         # Чтобы этого не случилось необходимо добавить pool_recycle=7200 (переустановка
         #    соединения через каждые 2 часа)
-        self.engine = create_engine('sqlite://server_base.db3', echo=False, pool_recycle=7200)
+        self.engine = create_engine('sqlite:///server_base.db3', echo=False, pool_recycle=7200)
         # создание таблиц
         self.Base.metadata.create_all(self.engine)
         # Создаём сессию
@@ -93,7 +93,7 @@ class ServerDB:
 
     def user_login(self, username, ip_address, port):
 
-        res = self.session.query(self.AllUsers).filter_by(logging=username)
+        res = self.session.query(self.AllUsers).filter_by(login=username)
         # обновляем время, если нашли
         if res.count():
             user = res.first()
@@ -112,3 +112,58 @@ class ServerDB:
 
         self.session.commit()
 
+    def user_logout(self, username):
+        # находим пользователя из списка всех пользователей, берем первого с этим именем
+        user = self.session.query(self.AllUsers).filter_by(login=username).first()
+
+        # удаляем из списка активных пользователй
+        self.session.query(self.ActiveUsers).filter_by(user=user.id).delete()
+
+        self.session.commit()
+
+    # Функция возвращает список известных пользователей со временем последнего входа.
+    def users_list(self):
+        query = self.session.query(self.AllUsers.login, self.ActiveUsers.ip, self.ActiveUsers.port,
+                                   self.ActiveUsers.time_conn).join(self.AllUsers)
+
+        return query.all()
+
+    # Функция возвращает список активных пользователей
+    def active_users_list(self):
+        # Запрашиваем соединение таблиц и собираем тюплы имя, адрес, порт, время.
+        query = self.session.query(
+            self.AllUsers.login,
+            self.ActiveUsers.ip,
+            self.ActiveUsers.port,
+            self.ActiveUsers.time_conn
+            ).join(self.AllUsers)
+        # Возвращаем список тюплов
+        return query.all()
+
+    # Функция возвращает историю входов по пользователю или по всем пользователям
+    def login_history(self, username=None):
+        # Запрашиваем историю входа
+        query = self.session.query(self.AllUsers.login,
+                                   self.LoginHistory.last_conn,
+                                   self.LoginHistory.ip,
+                                   self.LoginHistory.port
+                                   ).join(self.AllUsers)
+        # Если было указано имя пользователя, то фильтруем по нему
+        if username:
+            query = query.filter(self.AllUsers.login == username)
+        return query.all()
+
+if __name__ == '__main__':
+    db = ServerDB()
+    db.user_login('client_1', '192.168.1.4', 8888)
+    db.user_login('client_2', '192.168.1.5', 7777)
+    # выводим список кортежей - активных пользователей
+    print(db.active_users_list())
+    # выполянем 'отключение' пользователя
+    db.user_logout('client_1')
+    print(db.users_list())
+    # выводим список активных пользователей
+    print(db.active_users_list())
+    db.user_logout('client_2')
+    print(db.users_list())
+    print(db.active_users_list())
