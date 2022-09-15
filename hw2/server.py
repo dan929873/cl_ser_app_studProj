@@ -208,6 +208,7 @@ def main():
     # Печатаем справку:
     print_help()
 
+
     # Основной цикл сервера:
     while True:
         command = input('Введите команду: ')
