@@ -123,9 +123,7 @@ class ServerDB:
 
     # Функция возвращает список известных пользователей со временем последнего входа.
     def users_list(self):
-        query = self.session.query(self.AllUsers.login, self.ActiveUsers.ip, self.ActiveUsers.port,
-                                   self.ActiveUsers.time_conn).join(self.AllUsers)
-
+        query = self.session.query(self.AllUsers.login, self.AllUsers.last_conn,)
         return query.all()
 
     # Функция возвращает список активных пользователей
@@ -158,12 +156,12 @@ if __name__ == '__main__':
     db.user_login('client_1', '192.168.1.4', 8888)
     db.user_login('client_2', '192.168.1.5', 7777)
     # выводим список кортежей - активных пользователей
-    print(db.active_users_list())
+    print(f'active_users_list - {db.active_users_list()}')
     # выполянем 'отключение' пользователя
     db.user_logout('client_1')
-    print(db.users_list())
+    print(f'users_list - {db.users_list()}')
     # выводим список активных пользователей
-    print(db.active_users_list())
+    print(f'active_users_list - {db.active_users_list()}')
     db.user_logout('client_2')
-    print(db.users_list())
-    print(db.active_users_list())
+    print(f'users_list - {db.users_list()}')
+    print(f'active_users_list - {db.active_users_list()}')
